@@ -13,7 +13,7 @@ public class HomeBroker {
         //printMarketData(marketData);
         buildMenu();
     }
-
+    
     private static void buildMenu() {
 
         Scanner scannerMenuItem = new Scanner(System.in);
@@ -101,6 +101,10 @@ public class HomeBroker {
         }
     }
 
+    /**
+     * Imprime o balanço do portfólio do usuário, mostrando o total investido em cada ação e o valor total do portfólio.
+     * @param userPortfolio
+     */
     public static void printBalance(String[][] userPortfolio) {
         System.out.println("Seu Balanço:");
 
