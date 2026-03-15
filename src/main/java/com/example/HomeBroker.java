@@ -1,0 +1,404 @@
+package com.example;
+
+import java.util.Random;
+import java.util.Scanner;
+
+public class HomeBroker {
+    static String[][] marketData = new String[5][3];
+    static String[][] userPortfolio = new String[5][3];
+    private static final Random random = new Random();
+
+    public static void main(String[] args) {
+        System.out.println("Bem-vindo ao Home Broker!");
+
+        buildMarketData(marketData);
+        //printMarketData(marketData);
+        buildMenu();
+    }
+    
+    private static void buildMenu() {
+
+        Scanner scannerMenuItem = new Scanner(System.in);
+        int option;
+
+        do {
+            // Simula oscilação de preço do mercado a cada rodada
+            updateMarketPrices(marketData);
+
+            System.out.println("1. Listar");
+            System.out.println("2. Comprar");
+            System.out.println("3. Vender");
+            System.out.println("4. Ver Portfolio");
+            System.out.println("5. Ver Balanço");
+            System.out.println("0. Sair");
+
+            option = readInt(scannerMenuItem, "Escolha uma opção: ");
+            if (option < 0) {
+                System.out.println("Opção inválida. Tente novamente.");
+                continue;
+            }
+
+            switch (option) {
+                case 1:
+                    System.out.println("Listar");
+                    printMarketData(marketData);
+                    break;
+                case 2:
+                    System.out.println("Comprar");
+                    buyStock(marketData, userPortfolio, scannerMenuItem);
+                    break;
+                case 3:
+                    System.out.println("Vender");
+                    sellStock(marketData, userPortfolio, scannerMenuItem);
+                    break;
+                case 4:
+                    System.out.println("Ver Portfolio");
+                    printUserPortfolio(userPortfolio);
+                    break;
+                case 5:
+                    System.out.println("Ver Balanço");
+                    printBalance(userPortfolio);
+                    break;
+                case 0:
+                    System.out.println("Sair");
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        } while (option != 0);
+    }
+
+    /**
+     * Imprime os dados de mercado, mostrando o símbolo, preço e quantidade disponível para cada ação.
+     * @param marketData
+     */
+    public static void printMarketData(String[][] marketData) {
+        System.out.println("Mercado Atual:");
+        System.out.println("Símbolo | Preço (R$) | Quant. Disponível");
+        for (String[] stock : marketData) {
+            if (stock == null || stock[0] == null) {
+                continue;
+            }
+            System.out.printf("%s | %s | %s%n", stock[0], stock[1], stock[2]);
+        }
+    }
+
+    /**
+     * Imprime os dados do portfólio do usuário, mostrando o símbolo, preço e quantidade disponível para cada ação.
+     * @param userPortfolio
+     */
+    public static void printUserPortfolio(String[][] userPortfolio) {
+        System.out.println("Seu Portfólio:");
+
+        System.out.println("Símbolo | Preço (R$) | Quantidade | Total (R$)");
+        for (String[] stock : userPortfolio) {
+            if (stock == null || stock[0] == null) {
+                continue;
+            }
+            double preco;
+            int quantidade;
+            try {
+                preco = Double.parseDouble(stock[1]);
+                quantidade = Integer.parseInt(stock[2]);
+            } catch (NumberFormatException e) {
+                System.out.printf("%s | %s | %s | %s%n", stock[0], stock[1], stock[2], "N/A");
+                continue;
+            }
+            double total = preco * quantidade;
+            System.out.printf("%s | %s | %s | %.2f%n", stock[0], stock[1], stock[2], total);
+        }
+    }
+
+    /**
+     * Imprime o balanço do portfólio do usuário, mostrando o total investido em cada ação e o valor total do portfólio.
+     * @param userPortfolio
+     */
+    public static void printBalance(String[][] userPortfolio) {
+        System.out.println("Seu Balanço:");
+
+        double totalBalance = 0.0;
+        boolean hasStocks = false;
+
+        System.out.println("Símbolo | Preço (R$) | Quantidade | Total (R$)");
+        for (String[] stock : userPortfolio) {
+            if (stock == null || stock[0] == null) {
+                continue;
+            }
+            hasStocks = true;
+            double preco;
+            int quantidade;
+            try {
+                preco = Double.parseDouble(stock[1]);
+                quantidade = Integer.parseInt(stock[2]);
+            } catch (NumberFormatException e) {
+                System.out.printf("%s | %s | %s | %s%n", stock[0], stock[1], stock[2], "N/A");
+                continue;
+            }
+            double total = preco * quantidade;
+            totalBalance += total;
+            System.out.printf("%s | %s | %s | %.2f%n", stock[0], stock[1], stock[2], total);
+        }
+
+        if (!hasStocks) {
+            System.out.println("Nenhuma ação no portfólio.");
+        }
+
+        System.out.printf("Total do Portfólio: R$ %.2f%n", totalBalance);
+    }
+
+    /**
+     * Constrói os dados de mercado com ações, preços e quantidades disponíveis.
+     * @param marketData
+     */
+    public static void buildMarketData(String[][] marketData) {
+        
+        marketData[0][0] = "PETR4";
+        marketData[0][1] = "32.50";
+        marketData[0][2] = "1000";
+
+        marketData[1][0] = "VALE3";
+        marketData[1][1] = "68.90";
+        marketData[1][2] = "1000";
+
+        marketData[2][0] = "ITUB4";
+        marketData[2][1] = "29.10";
+        marketData[2][2] = "1000";
+
+        marketData[3][0] = "BBDC4";
+        marketData[3][1] = "15.20";
+        marketData[3][2] = "500";
+
+        marketData[4][0] = "ABEV3";
+        marketData[4][1] = "12.40";
+        marketData[4][2] = "750";
+    }
+
+    /**
+     * Atualiza os preços das ações no mercado, simulando uma oscilação aleatória de +/- 2 reais.
+     * @param marketData
+     */
+    private static void updateMarketPrices(String[][] marketData) {
+        for (String[] stock : marketData) {
+            if (stock == null || stock[0] == null || stock[1] == null) {
+                continue;
+            }
+            try {
+                double price = Double.parseDouble(stock[1]);
+                price += random.nextDouble() * 4 - 2; // +/-2
+                if (price < 0.01) {
+                    price = 0.01;
+                }
+                stock[1] = String.format("%.2f", price);
+            } catch (NumberFormatException e) {
+                // Ignora preço inválido
+            }
+        }
+    }
+
+    /**
+     * Lê um valor inteiro do usuário, garantindo que seja um número válido e não negativo. Retorna -1 em caso de erro ou entrada vazia.
+     * @param scanner
+     * @param prompt
+     * @return
+     */
+    private static int readInt(Scanner scanner, String prompt) {
+        System.out.print(prompt);
+        String line = scanner.nextLine().trim();
+        if (line.isEmpty()) {
+            System.out.println("Entrada vazia. Operação cancelada.");
+            return -1;
+        }
+        try {
+            return Integer.parseInt(line);
+        } catch (NumberFormatException e) {
+            System.out.println("Valor numérico inválido.");
+            return -1;
+        }
+    }
+
+    /**
+     * Lê o símbolo da ação do usuário, garantindo que seja uma string não vazia e convertendo para maiúsculas.
+     * @param scanner
+     * @param prompt
+     * @return
+     */
+    private static String readSymbol(Scanner scanner, String prompt) {
+        System.out.print(prompt);
+        String symbol = scanner.nextLine().trim();
+        if (symbol.isEmpty()) {
+            System.out.println("Símbolo inválido. Operação cancelada.");
+            return null;
+        }
+        return symbol.toUpperCase();
+    }
+
+    /**
+     * Compra uma ação do mercado e adiciona ao portfólio do usuário.
+     * @param marketData dados de mercado
+     * @param userPortfolio portfólio do usuário
+     * @param scanner objeto Scanner para leitura do stdin
+     */
+    private static void buyStock(String[][] marketData, String[][] userPortfolio, Scanner scanner) {
+        String symbol = readSymbol(scanner, "Informe o símbolo da ação: ");
+        if (symbol == null) return;
+
+        int quantidade = readInt(scanner, "Informe a quantidade a comprar: ");
+        if (quantidade < 0) {
+            System.out.println("Quantidade inválida. Operação cancelada.");
+            return;
+        }
+
+        int idxMarket = -1;
+        for (int i = 0; i < marketData.length; i++) {
+            if (marketData[i] != null && marketData[i][0] != null && marketData[i][0].equalsIgnoreCase(symbol)) {
+                idxMarket = i;
+                break;
+            }
+        }
+
+        if (idxMarket == -1) {
+            System.out.println("Ação não encontrada no mercado.");
+            return;
+        }
+
+        int disponivel;
+        try {
+            disponivel = Integer.parseInt(marketData[idxMarket][2]);
+        } catch (NumberFormatException e) {
+            System.out.println("Quantidade no mercado inválida. Não é possível comprar.");
+            return;
+        }
+
+        if (quantidade <= 0 || quantidade > disponivel) {
+            System.out.println("Quantidade inválida ou maior que o disponível no mercado.");
+            return;
+        }
+
+        // Ajusta o mercado
+        marketData[idxMarket][2] = String.valueOf(disponivel - quantidade);
+
+        // Atualiza portfólio do usuário
+        int idxPortfolio = -1;
+        for (int i = 0; i < userPortfolio.length; i++) {
+            if (userPortfolio[i] != null && userPortfolio[i][0] != null && userPortfolio[i][0].equalsIgnoreCase(symbol)) {
+                idxPortfolio = i;
+                break;
+            }
+        }
+
+        if (idxPortfolio >= 0) {
+            int atual = Integer.parseInt(userPortfolio[idxPortfolio][2]);
+            userPortfolio[idxPortfolio][2] = String.valueOf(atual + quantidade);
+        } else {
+            for (int i = 0; i < userPortfolio.length; i++) {
+                if (userPortfolio[i] == null) {
+                    userPortfolio[i] = new String[3];
+                }
+                if (userPortfolio[i][0] == null) {
+                    userPortfolio[i][0] = symbol.toUpperCase();
+                    userPortfolio[i][1] = marketData[idxMarket][1];
+                    userPortfolio[i][2] = String.valueOf(quantidade);
+                    idxPortfolio = i;
+                    break;
+                }
+            }
+            if (idxPortfolio == -1) {
+                System.out.println("Portfólio cheio. Não é possível incluir nova ação.");
+                // Reverte a compra no mercado
+                marketData[idxMarket][2] = String.valueOf(disponivel);
+                return;
+            }
+        }
+
+        System.out.printf("Compra realizada: %s %d ações a R$ %s.\n", symbol.toUpperCase(), quantidade, marketData[idxMarket][1]);
+    }
+
+    /**
+     * Vende uma ação do portfólio e devolve ao mercado.
+     * @param marketData dados de mercado
+     * @param userPortfolio portfólio do usuário
+     * @param scanner objeto Scanner para leitura do stdin
+     */
+    private static void sellStock(String[][] marketData, String[][] userPortfolio, Scanner scanner) {
+        String symbol = readSymbol(scanner, "Informe o símbolo da ação: ");
+        if (symbol == null) return;
+
+        int quantidade = readInt(scanner, "Informe a quantidade a vender: ");
+        if (quantidade < 0) {
+            System.out.println("Quantidade inválida. Operação cancelada.");
+            return;
+        }
+
+        int idxPortfolio = -1;
+        for (int i = 0; i < userPortfolio.length; i++) {
+            if (userPortfolio[i] != null && userPortfolio[i][0] != null && userPortfolio[i][0].equalsIgnoreCase(symbol)) {
+                idxPortfolio = i;
+                break;
+            }
+        }
+
+        if (idxPortfolio == -1) {
+            System.out.println("Ação não encontrada no portfólio.");
+            return;
+        }
+
+        int disponivelUsuario;
+        try {
+            disponivelUsuario = Integer.parseInt(userPortfolio[idxPortfolio][2]);
+        } catch (NumberFormatException e) {
+            System.out.println("Quantidade no portfólio inválida. Não é possível vender.");
+            return;
+        }
+
+        if (quantidade <= 0 || quantidade > disponivelUsuario) {
+            System.out.println("Quantidade inválida ou maior que o disponível no portfólio.");
+            return;
+        }
+
+        double precoUnitario = -1;
+        int idxMarket = -1;
+        for (int i = 0; i < marketData.length; i++) {
+            if (marketData[i] != null && marketData[i][0] != null && marketData[i][0].equalsIgnoreCase(symbol)) {
+                idxMarket = i;
+                break;
+            }
+        }
+
+        if (idxMarket != -1) {
+            try {
+                precoUnitario = Double.parseDouble(marketData[idxMarket][1]);
+            } catch (NumberFormatException e) {
+                precoUnitario = -1;
+            }
+        }
+
+        if (precoUnitario < 0) {
+            try {
+                precoUnitario = Double.parseDouble(userPortfolio[idxPortfolio][1]);
+            } catch (NumberFormatException e) {
+                System.out.println("Preço inválido no portfólio e no mercado. Não é possível vender.");
+                return;
+            }
+        }
+
+        userPortfolio[idxPortfolio][2] = String.valueOf(disponivelUsuario - quantidade);
+        if (Integer.parseInt(userPortfolio[idxPortfolio][2]) == 0) {
+            userPortfolio[idxPortfolio][0] = null;
+            userPortfolio[idxPortfolio][1] = null;
+            userPortfolio[idxPortfolio][2] = null;
+        }
+
+        if (idxMarket != -1) {
+            int disponivelMercado;
+            try {
+                disponivelMercado = Integer.parseInt(marketData[idxMarket][2]);
+            } catch (NumberFormatException e) {
+                disponivelMercado = 0;
+            }
+            marketData[idxMarket][2] = String.valueOf(disponivelMercado + quantidade);
+        }
+
+        double totalRecebido = precoUnitario * quantidade;
+        System.out.printf("Venda realizada: %s %d ações a R$ %.2f (total R$ %.2f).\n", symbol.toUpperCase(), quantidade, precoUnitario, totalRecebido);
+    }
+}

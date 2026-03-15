@@ -8,3 +8,12 @@ Simulador de Home Broker
 <img width="814" height="546" alt="image" src="https://github.com/user-attachments/assets/a6fb2533-d72d-4dab-93ea-a6d070ffdaf2" />
 <img width="814" height="481" alt="image" src="https://github.com/user-attachments/assets/7a4d4a39-8a30-4fae-aa79-ef6058b6322b" />
 <img width="782" height="231" alt="image" src="https://github.com/user-attachments/assets/ad931b42-0ccd-409b-9cb1-29509747da31" />
+
+## Como executar
+1. Instalar Maven (e JDK 17+)
+2. rodar `mvn clean package`
+3. rodar `java -jar target/simulador-home-broker-0.1.0-SNAPSHOT.jar`
+
+## Descrição
+Aplicação de terminal inicial com saída simples.
+
