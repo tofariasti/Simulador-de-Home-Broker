@@ -4,6 +4,7 @@ public class HomeBroker {
     public static void main(String[] args) {
 
         String[][] marketData = new String[5][3];
+        String[][] userPortfolio = new String[5][3];
 
         buildMarketData(marketData);
         printMarketData(marketData);
