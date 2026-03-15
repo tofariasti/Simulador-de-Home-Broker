@@ -35,10 +35,11 @@ public class HomeBroker {
                     break;
                 case 2:
                     System.out.println("Comprar");
-                    comprarAcao(marketData, userPortfolio, scannerMenuItem);
+                    buyStock(marketData, userPortfolio, scannerMenuItem);
                     break;
                 case 3:
                     System.out.println("Vender");
+                    sellStock(marketData, userPortfolio, scannerMenuItem);
                     break;
                 case 4:
                     System.out.println("Ver Portfolio");
@@ -130,7 +131,7 @@ public class HomeBroker {
      * @param userPortfolio portfólio do usuário
      * @param scanner objeto Scanner para leitura do stdin
      */
-    private static void comprarAcao(String[][] marketData, String[][] userPortfolio, Scanner scanner) {
+    private static void buyStock(String[][] marketData, String[][] userPortfolio, Scanner scanner) {
         System.out.print("Informe o símbolo da ação: ");
         String symbol = scanner.next();
         System.out.print("Informe a quantidade a comprar: ");
@@ -199,5 +200,86 @@ public class HomeBroker {
         }
 
         System.out.printf("Compra realizada: %s %d ações a R$ %s.\n", symbol.toUpperCase(), quantidade, marketData[idxMarket][1]);
+    }
+
+    /**
+     * Vende uma ação do portfólio e devolve ao mercado.
+     * @param marketData dados de mercado
+     * @param userPortfolio portfólio do usuário
+     * @param scanner objeto Scanner para leitura do stdin
+     */
+    private static void sellStock(String[][] marketData, String[][] userPortfolio, Scanner scanner) {
+        System.out.print("Informe o símbolo da ação: ");
+        String symbol = scanner.next();
+        System.out.print("Informe a quantidade a vender: ");
+        int quantidade;
+        try {
+            quantidade = scanner.nextInt();
+        } catch (Exception e) {
+            System.out.println("Quantidade inválida. Operação cancelada.");
+            return;
+        }
+
+        int idxPortfolio = -1;
+        for (int i = 0; i < userPortfolio.length; i++) {
+            if (userPortfolio[i] != null && userPortfolio[i][0] != null && userPortfolio[i][0].equalsIgnoreCase(symbol)) {
+                idxPortfolio = i;
+                break;
+            }
+        }
+
+        if (idxPortfolio == -1) {
+            System.out.println("Ação não encontrada no portfólio.");
+            return;
+        }
+
+        int disponivelUsuario;
+        try {
+            disponivelUsuario = Integer.parseInt(userPortfolio[idxPortfolio][2]);
+        } catch (NumberFormatException e) {
+            System.out.println("Quantidade no portfólio inválida. Não é possível vender.");
+            return;
+        }
+
+        if (quantidade <= 0 || quantidade > disponivelUsuario) {
+            System.out.println("Quantidade inválida ou maior que o disponível no portfólio.");
+            return;
+        }
+
+        double precoUnitario;
+        try {
+            precoUnitario = Double.parseDouble(userPortfolio[idxPortfolio][1]);
+        } catch (NumberFormatException e) {
+            System.out.println("Preço inválido no portfólio. Não é possível vender.");
+            return;
+        }
+
+        userPortfolio[idxPortfolio][2] = String.valueOf(disponivelUsuario - quantidade);
+        if (Integer.parseInt(userPortfolio[idxPortfolio][2]) == 0) {
+            userPortfolio[idxPortfolio][0] = null;
+            userPortfolio[idxPortfolio][1] = null;
+            userPortfolio[idxPortfolio][2] = null;
+        }
+
+        int idxMarket = -1;
+        for (int i = 0; i < marketData.length; i++) {
+            if (marketData[i] != null && marketData[i][0] != null && marketData[i][0].equalsIgnoreCase(symbol)) {
+                idxMarket = i;
+                break;
+            }
+        }
+
+        if (idxMarket != -1) {
+            int disponivelMercado;
+            try {
+                disponivelMercado = Integer.parseInt(marketData[idxMarket][2]);
+            } catch (NumberFormatException e) {
+                disponivelMercado = 0;
+            }
+            marketData[idxMarket][2] = String.valueOf(disponivelMercado + quantidade);
+        }
+
+        double totalRecebido = precoUnitario * quantidade;
+        System.out.printf("Venda realizada: %s %d ações a R$ %.2f (total R$ %.2f).\n", symbol.toUpperCase(), quantidade, precoUnitario, totalRecebido);
     }
 }
