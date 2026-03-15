@@ -1,10 +1,12 @@
 package com.example;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class HomeBroker {
     static String[][] marketData = new String[5][3];
     static String[][] userPortfolio = new String[5][3];
+    private static final Random random = new Random();
 
     public static void main(String[] args) {
         System.out.println("Bem-vindo ao Home Broker!");
@@ -20,6 +22,9 @@ public class HomeBroker {
         int option;
 
         do {
+            // Simula oscilação de preço do mercado a cada rodada
+            updateMarketPrices(marketData);
+
             System.out.println("1. Listar");
             System.out.println("2. Comprar");
             System.out.println("3. Vender");
@@ -163,6 +168,28 @@ public class HomeBroker {
         marketData[4][0] = "ABEV3";
         marketData[4][1] = "12.40";
         marketData[4][2] = "750";
+    }
+
+    /**
+     * Atualiza os preços das ações no mercado, simulando uma oscilação aleatória de +/- 2 reais.
+     * @param marketData
+     */
+    private static void updateMarketPrices(String[][] marketData) {
+        for (String[] stock : marketData) {
+            if (stock == null || stock[0] == null || stock[1] == null) {
+                continue;
+            }
+            try {
+                double price = Double.parseDouble(stock[1]);
+                price += random.nextDouble() * 4 - 2; // +/-2
+                if (price < 0.01) {
+                    price = 0.01;
+                }
+                stock[1] = String.format("%.2f", price);
+            } catch (NumberFormatException e) {
+                // Ignora preço inválido
+            }
+        }
     }
 
     /**
