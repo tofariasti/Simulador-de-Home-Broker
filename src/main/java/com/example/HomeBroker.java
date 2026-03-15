@@ -27,6 +27,7 @@ public class HomeBroker {
         switch (scannerMenuItem.nextInt()) {
             case 1:
                 System.out.println("Listar");
+                printMarketData(marketData);
                 break;
             case 2:
                 System.out.println("Comprar");
