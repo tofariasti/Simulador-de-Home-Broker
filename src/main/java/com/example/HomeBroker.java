@@ -16,7 +16,7 @@ public class HomeBroker {
 
     public static void printMarketData(String[][] marketData) {
         System.out.println("Mercado Atual:");
-        System.out.println("Símbolo | Preço Atual | Quantidade Disponível");
+        System.out.println("Símbolo | Preço | Quant. Disponível");
         for (String[] stock : marketData) {
             System.out.printf("%s | %s | %s%n", stock[0], stock[1], stock[2]);
         }
