@@ -1,15 +1,58 @@
 package com.example;
 
+import java.util.Scanner;
+
 public class HomeBroker {
     public static void main(String[] args) {
 
         String[][] marketData = new String[5][3];
         String[][] userPortfolio = new String[5][3];
 
+        System.out.println("Bem-vindo ao Home Broker!");
+
         buildMarketData(marketData);
-        printMarketData(marketData);
+        //printMarketData(marketData);
+        buildMenu();
     }
 
+    private static void buildMenu() {
+        System.out.println("1. Listar");
+        System.out.println("2. Comprar");
+        System.out.println("3. Vender");
+        System.out.println("4. Ver Portfolio");
+        System.out.println("5. Ver Balanço");
+        System.out.println("0. Sair");
+
+        Scanner scannerMenuItem = new Scanner(System.in);
+
+        switch (scannerMenuItem.nextInt()) {
+            case 1:
+                System.out.println("Listar");
+                break;
+            case 2:
+                System.out.println("Comprar");
+                break;
+            case 3:
+                System.out.println("Vender");
+                break;
+            case 4:
+                System.out.println("Ver Portfolio");
+                break;
+            case 5:
+                System.out.println("Ver Balanço");
+                break;
+            case 0:
+                System.out.println("Sair");
+                break;
+            default:
+                System.out.println("Opção inválida. Tente novamente.");
+        }
+    }
+
+    /**
+     * Imprime os dados de mercado, mostrando o símbolo, preço e quantidade disponível para cada ação.
+     * @param marketData
+     */
     public static void printMarketData(String[][] marketData) {
         System.out.println("Mercado Atual:");
         System.out.println("Símbolo | Preço | Quant. Disponível");
@@ -21,6 +64,10 @@ public class HomeBroker {
         }
     }
 
+    /**
+     * Constrói os dados de mercado com ações, preços e quantidades disponíveis.
+     * @param marketData
+     */
     public static void buildMarketData(String[][] marketData) {
         
         marketData[0][0] = "PETR4";
