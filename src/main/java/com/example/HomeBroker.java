@@ -32,8 +32,11 @@ public class HomeBroker {
             System.out.println("5. Ver Balanço");
             System.out.println("0. Sair");
 
-            System.out.print("Escolha uma opção: ");
-            option = scannerMenuItem.nextInt();
+            option = readInt(scannerMenuItem, "Escolha uma opção: ");
+            if (option < 0) {
+                System.out.println("Opção inválida. Tente novamente.");
+                continue;
+            }
 
             switch (option) {
                 case 1:
@@ -193,19 +196,54 @@ public class HomeBroker {
     }
 
     /**
+     * Lê um valor inteiro do usuário, garantindo que seja um número válido e não negativo. Retorna -1 em caso de erro ou entrada vazia.
+     * @param scanner
+     * @param prompt
+     * @return
+     */
+    private static int readInt(Scanner scanner, String prompt) {
+        System.out.print(prompt);
+        String line = scanner.nextLine().trim();
+        if (line.isEmpty()) {
+            System.out.println("Entrada vazia. Operação cancelada.");
+            return -1;
+        }
+        try {
+            return Integer.parseInt(line);
+        } catch (NumberFormatException e) {
+            System.out.println("Valor numérico inválido.");
+            return -1;
+        }
+    }
+
+    /**
+     * Lê o símbolo da ação do usuário, garantindo que seja uma string não vazia e convertendo para maiúsculas.
+     * @param scanner
+     * @param prompt
+     * @return
+     */
+    private static String readSymbol(Scanner scanner, String prompt) {
+        System.out.print(prompt);
+        String symbol = scanner.nextLine().trim();
+        if (symbol.isEmpty()) {
+            System.out.println("Símbolo inválido. Operação cancelada.");
+            return null;
+        }
+        return symbol.toUpperCase();
+    }
+
+    /**
      * Compra uma ação do mercado e adiciona ao portfólio do usuário.
      * @param marketData dados de mercado
      * @param userPortfolio portfólio do usuário
      * @param scanner objeto Scanner para leitura do stdin
      */
     private static void buyStock(String[][] marketData, String[][] userPortfolio, Scanner scanner) {
-        System.out.print("Informe o símbolo da ação: ");
-        String symbol = scanner.next();
-        System.out.print("Informe a quantidade a comprar: ");
-        int quantidade;
-        try {
-            quantidade = scanner.nextInt();
-        } catch (Exception e) {
+        String symbol = readSymbol(scanner, "Informe o símbolo da ação: ");
+        if (symbol == null) return;
+
+        int quantidade = readInt(scanner, "Informe a quantidade a comprar: ");
+        if (quantidade < 0) {
             System.out.println("Quantidade inválida. Operação cancelada.");
             return;
         }
@@ -264,6 +302,12 @@ public class HomeBroker {
                     break;
                 }
             }
+            if (idxPortfolio == -1) {
+                System.out.println("Portfólio cheio. Não é possível incluir nova ação.");
+                // Reverte a compra no mercado
+                marketData[idxMarket][2] = String.valueOf(disponivel);
+                return;
+            }
         }
 
         System.out.printf("Compra realizada: %s %d ações a R$ %s.\n", symbol.toUpperCase(), quantidade, marketData[idxMarket][1]);
@@ -276,13 +320,11 @@ public class HomeBroker {
      * @param scanner objeto Scanner para leitura do stdin
      */
     private static void sellStock(String[][] marketData, String[][] userPortfolio, Scanner scanner) {
-        System.out.print("Informe o símbolo da ação: ");
-        String symbol = scanner.next();
-        System.out.print("Informe a quantidade a vender: ");
-        int quantidade;
-        try {
-            quantidade = scanner.nextInt();
-        } catch (Exception e) {
+        String symbol = readSymbol(scanner, "Informe o símbolo da ação: ");
+        if (symbol == null) return;
+
+        int quantidade = readInt(scanner, "Informe a quantidade a vender: ");
+        if (quantidade < 0) {
             System.out.println("Quantidade inválida. Operação cancelada.");
             return;
         }
@@ -313,12 +355,30 @@ public class HomeBroker {
             return;
         }
 
-        double precoUnitario;
-        try {
-            precoUnitario = Double.parseDouble(userPortfolio[idxPortfolio][1]);
-        } catch (NumberFormatException e) {
-            System.out.println("Preço inválido no portfólio. Não é possível vender.");
-            return;
+        double precoUnitario = -1;
+        int idxMarket = -1;
+        for (int i = 0; i < marketData.length; i++) {
+            if (marketData[i] != null && marketData[i][0] != null && marketData[i][0].equalsIgnoreCase(symbol)) {
+                idxMarket = i;
+                break;
+            }
+        }
+
+        if (idxMarket != -1) {
+            try {
+                precoUnitario = Double.parseDouble(marketData[idxMarket][1]);
+            } catch (NumberFormatException e) {
+                precoUnitario = -1;
+            }
+        }
+
+        if (precoUnitario < 0) {
+            try {
+                precoUnitario = Double.parseDouble(userPortfolio[idxPortfolio][1]);
+            } catch (NumberFormatException e) {
+                System.out.println("Preço inválido no portfólio e no mercado. Não é possível vender.");
+                return;
+            }
         }
 
         userPortfolio[idxPortfolio][2] = String.valueOf(disponivelUsuario - quantidade);
@@ -326,14 +386,6 @@ public class HomeBroker {
             userPortfolio[idxPortfolio][0] = null;
             userPortfolio[idxPortfolio][1] = null;
             userPortfolio[idxPortfolio][2] = null;
-        }
-
-        int idxMarket = -1;
-        for (int i = 0; i < marketData.length; i++) {
-            if (marketData[i] != null && marketData[i][0] != null && marketData[i][0].equalsIgnoreCase(symbol)) {
-                idxMarket = i;
-                break;
-            }
         }
 
         if (idxMarket != -1) {
