@@ -17,8 +17,9 @@ public class HomeBroker {
     private static void buildMenu() {
 
         Scanner scannerMenuItem = new Scanner(System.in);
+        int option;
 
-        do{        
+        do {
             System.out.println("1. Listar");
             System.out.println("2. Comprar");
             System.out.println("3. Vender");
@@ -27,8 +28,9 @@ public class HomeBroker {
             System.out.println("0. Sair");
 
             System.out.print("Escolha uma opção: ");
+            option = scannerMenuItem.nextInt();
 
-            switch (scannerMenuItem.nextInt()) {
+            switch (option) {
                 case 1:
                     System.out.println("Listar");
                     printMarketData(marketData);
@@ -47,6 +49,7 @@ public class HomeBroker {
                     break;
                 case 5:
                     System.out.println("Ver Balanço");
+                    printBalance(userPortfolio);
                     break;
                 case 0:
                     System.out.println("Sair");
@@ -54,7 +57,7 @@ public class HomeBroker {
                 default:
                     System.out.println("Opção inválida. Tente novamente.");
             }
-        }while (scannerMenuItem.nextInt() != 0);
+        } while (option != 0);
     }
 
     /**
@@ -96,6 +99,39 @@ public class HomeBroker {
             double total = preco * quantidade;
             System.out.printf("%s | %s | %s | %.2f%n", stock[0], stock[1], stock[2], total);
         }
+    }
+
+    public static void printBalance(String[][] userPortfolio) {
+        System.out.println("Seu Balanço:");
+
+        double totalBalance = 0.0;
+        boolean hasStocks = false;
+
+        System.out.println("Símbolo | Preço (R$) | Quantidade | Total (R$)");
+        for (String[] stock : userPortfolio) {
+            if (stock == null || stock[0] == null) {
+                continue;
+            }
+            hasStocks = true;
+            double preco;
+            int quantidade;
+            try {
+                preco = Double.parseDouble(stock[1]);
+                quantidade = Integer.parseInt(stock[2]);
+            } catch (NumberFormatException e) {
+                System.out.printf("%s | %s | %s | %s%n", stock[0], stock[1], stock[2], "N/A");
+                continue;
+            }
+            double total = preco * quantidade;
+            totalBalance += total;
+            System.out.printf("%s | %s | %s | %.2f%n", stock[0], stock[1], stock[2], total);
+        }
+
+        if (!hasStocks) {
+            System.out.println("Nenhuma ação no portfólio.");
+        }
+
+        System.out.printf("Total do Portfólio: R$ %.2f%n", totalBalance);
     }
 
     /**
