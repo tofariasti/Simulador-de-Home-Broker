@@ -3,11 +3,10 @@ package com.example;
 import java.util.Scanner;
 
 public class HomeBroker {
+    static String[][] marketData = new String[5][3];
+    static String[][] userPortfolio = new String[5][3];
+
     public static void main(String[] args) {
-
-        String[][] marketData = new String[5][3];
-        String[][] userPortfolio = new String[5][3];
-
         System.out.println("Bem-vindo ao Home Broker!");
 
         buildMarketData(marketData);
@@ -37,6 +36,7 @@ public class HomeBroker {
                 break;
             case 4:
                 System.out.println("Ver Portfolio");
+                printUserPortfolio(userPortfolio);
                 break;
             case 5:
                 System.out.println("Ver Balanço");
@@ -57,6 +57,22 @@ public class HomeBroker {
         System.out.println("Mercado Atual:");
         System.out.println("Símbolo | Preço | Quant. Disponível");
         for (String[] stock : marketData) {
+            if (stock == null || stock[0] == null) {
+                continue;
+            }
+            System.out.printf("%s | %s | %s%n", stock[0], stock[1], stock[2]);
+        }
+    }
+
+    /**
+     * Imprime os dados do portfólio do usuário, mostrando o símbolo, preço e quantidade disponível para cada ação.
+     * @param userPortfolio
+     */
+    public static void printUserPortfolio(String[][] userPortfolio) {
+        System.out.println("Seu Portfólio:");
+
+        System.out.println("Símbolo | Preço | Quantidade");
+        for (String[] stock : userPortfolio) {
             if (stock == null || stock[0] == null) {
                 continue;
             }
